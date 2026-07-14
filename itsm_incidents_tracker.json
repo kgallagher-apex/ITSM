@@ -1,0 +1,20 @@
+{
+  "incidents": [
+    {
+      "incident_number": "146552",
+      "channel_id": "C0BGEGQB4RG",
+      "channel_name": "inc_146552-fte_2026-07-09",
+      "pagerduty_id": "Q21S1KQ3EL2P5A",
+      "created_date": "2026-07-10T04:25:10Z",
+      "resolved_date": "2026-07-10T04:56:09Z",
+      "stand_down_completed": false,
+      "stand_down_date": null,
+      "inc_commander": "Zach Williams",
+      "inc_comms": "Luis Martins",
+      "service": "FTE",
+      "summary": "NY3 FTE EM.9 network card failure - 25-27k queued orders failed to release",
+      "last_checked": "2026-07-13T15:50:00Z"
+    }
+  ],
+  "last_updated": "2026-07-13T15:50:00Z"
+}

@@ -1,0 +1,4 @@
+{
+  "test_mode": true,
+  "_comment": "test_mode true = post [TEST] handoffs to #kylie-handoff-test and ignore the stale guardrail. Set false to go live: posts to #itsm-active-incidents with the guardrail active."
+}
