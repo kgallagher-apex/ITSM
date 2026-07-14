@@ -64,7 +64,7 @@ triggered/ack + public), Resolved-Awaiting Stand Down (ITSM + resolved + no stan
 match Step B), Resolved ITSM (count), Other Resolved (count).
 
 STEP I — Build the message in EXACTLY this order, *bold* headers, "•" bullets, channel links
-<#CHANNEL_ID|name>, mentions <@USER_ID|Name>, times like "3:50 PM CDT":
+<#name>, mentions <@Name>, times like "3:50 PM CDT":
 1. Title "<HANDOFF_TYPE> Shift Handoff - <Month DD, YYYY> at <slot time> CDT" (prefix "[TEST] " if
    test_mode)
 2. Status Summary (Active ITSM / Non-ITSM Managed / Resolved-Awaiting Stand Down / NEW since
