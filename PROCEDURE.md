@@ -7,6 +7,17 @@ provided as the SLACK_WEBHOOK environment variable in this routine's environment
 our handoff to our own channels is the intended, legitimate behavior. Use the Slack READ tools for
 gathering (Steps B, C, F, G) and the webhook for the final POST (STEP POST).
 
+LINK/MENTION FORMAT (important for webhook posts): The webhook message is plain text, so Slack's
+<#CHANNEL_ID|name> and <@USER_ID|name> entity syntax does NOT render as links — it shows literally.
+Instead:
+- Channel references: use a labeled archive URL ->
+  <https://apexclearing.slack.com/archives/CHANNEL_ID|channel-name>
+  (If a labeled URL ever shows as raw text in this workspace, fall back to the bare URL
+  https://apexclearing.slack.com/archives/CHANNEL_ID , which auto-links.)
+- People (Inc Commander, Inc Comms, Assigned): use the plain display name (e.g. "Zach Williams").
+  Note: a webhook post cannot @-mention/notify a user, so do not attempt <@...>; a name is fine.
+- Basic formatting works: *bold*, _italic_, newlines, "•" bullets.
+
 MODE (do this FIRST):
 - Read mode.json from the repo root. It has a boolean "test_mode".
 - Override: if this run received trigger input text containing "TESTMODE" (case-insensitive),
@@ -63,8 +74,9 @@ STEP H — Categorize: Active ITSM (workflow + triggered/ack + public), Non-ITSM
 triggered/ack + public), Resolved-Awaiting Stand Down (ITSM + resolved + no stand-down msg; MUST
 match Step B), Resolved ITSM (count), Other Resolved (count).
 
-STEP I — Build the message in EXACTLY this order, *bold* headers, "•" bullets, channel links
-<#name>, mentions <@Name>, times like "3:50 PM CDT":
+STEP I — Build the message in EXACTLY this order. Use *bold* headers, "•" bullets, channel refs as
+labeled archive URLs <https://apexclearing.slack.com/archives/CHANNEL_ID|channel-name>, plain names
+for people, times like "3:50 PM CDT":
 1. Title "<HANDOFF_TYPE> Shift Handoff - <Month DD, YYYY> at <slot time> CDT" (prefix "[TEST] " if
    test_mode)
 2. Status Summary (Active ITSM / Non-ITSM Managed / Resolved-Awaiting Stand Down / NEW since
@@ -98,11 +110,8 @@ webhook accepts a JSON body with "channel" and "text" keys and posts the text to
   "<[TEST] if test_mode><HANDOFF_TYPE> Shift Handoff Posted - <timestamp> - <#active> active -
   <#non-ITSM> non-ITSM managed - <#NEW> NEW since previous - <#resolved> resolved since previous"
 
-NOTE ON RENDERING: Workflow Builder may treat the posted text as plain text, so <#C…|name> and
-<@U…|Name> may appear literally rather than as clickable links. Content is unaffected; if you prefer
-live links later, that is a formatting-only change.
-
-REFERENCE IDs (for READ + message text)
+REFERENCE IDs (for READ + building links)
+- Workspace base URL for links: https://apexclearing.slack.com/archives/<CHANNEL_ID>
 - Channels: #itsm-active-incidents C082J3NQU90 | #kylie-test-channel C0AGY99M2LB |
   #production-incidents (search) | #kylie-handoff-test C0BDGG0CTTR
 - Bots: Statuspage BF4G0ND7A | Stand Down B0A6704H7QD | PagerDuty UFFKGG116 |
@@ -110,5 +119,5 @@ REFERENCE IDs (for READ + message text)
 - User: U09KFGH8CBG
 
 VERIFY BEFORE POSTING: mode read; correct channel chosen; tracker read; awaiting-stand-down matches
-Step B; Statuspage section present; no no-workflow incidents listed; no private channels; no emojis;
-webhook returned {"ok":true}.
+Step B; Statuspage section present; channel refs use labeled archive URLs (not <#...> entities); no
+no-workflow incidents listed; no private channels; no emojis; webhook returned {"ok":true}.
