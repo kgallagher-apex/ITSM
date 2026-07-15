@@ -14,6 +14,11 @@ Instead:
   archive URL on the same line (the bare URL auto-links; this workspace does NOT collapse the
   <url|label> form, so do NOT use it). Example:
   inc_146552-fte_2026-07-09 https://apexclearing.slack.com/archives/C0BGEGQB4RG
+  This applies to EVERY mention of an incident anywhere in the message — not just list entries, but
+  also narrative/prose lines and status-explanation notes (including "None ..." lines that explain
+  why a section is empty). Any time you name an incident by number, include its full channel name +
+  bare archive URL. If the channel ID isn't otherwise known, look it up from itsm_incidents_tracker.json
+  or via the Slack read tools before writing the line.
 - People (Inc Commander, Inc Comms, Assigned): use the plain display name (e.g. "Zach Williams").
   Note: a webhook post cannot @-mention/notify a user, so do not attempt <@...>; a name is fine.
 - Basic formatting works: *bold*, _italic_, newlines, "•" bullets.
