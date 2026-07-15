@@ -10,10 +10,10 @@ gathering (Steps B, C, F, G) and the webhook for the final POST (STEP POST).
 LINK/MENTION FORMAT (important for webhook posts): The webhook message is plain text, so Slack's
 <#CHANNEL_ID|name> and <@USER_ID|name> entity syntax does NOT render as links — it shows literally.
 Instead:
-- Channel references: use a labeled archive URL ->
-  <https://apexclearing.slack.com/archives/CHANNEL_ID|channel-name>
-  (If a labeled URL ever shows as raw text in this workspace, fall back to the bare URL
-  https://apexclearing.slack.com/archives/CHANNEL_ID , which auto-links.)
+- Channel references: write the channel name as plain text, immediately followed by its bare
+  archive URL on the same line (the bare URL auto-links; this workspace does NOT collapse the
+  <url|label> form, so do NOT use it). Example:
+  inc_146552-fte_2026-07-09 https://apexclearing.slack.com/archives/C0BGEGQB4RG
 - People (Inc Commander, Inc Comms, Assigned): use the plain display name (e.g. "Zach Williams").
   Note: a webhook post cannot @-mention/notify a user, so do not attempt <@...>; a name is fine.
 - Basic formatting works: *bold*, _italic_, newlines, "•" bullets.
@@ -75,8 +75,8 @@ triggered/ack + public), Resolved-Awaiting Stand Down (ITSM + resolved + no stan
 match Step B), Resolved ITSM (count), Other Resolved (count).
 
 STEP I — Build the message in EXACTLY this order. Use *bold* headers, "•" bullets, channel refs as
-labeled archive URLs <https://apexclearing.slack.com/archives/CHANNEL_ID|channel-name>, plain names
-for people, times like "3:50 PM CDT":
+"<channel-name> <bare archive URL>" (name then https://apexclearing.slack.com/archives/CHANNEL_ID;
+do NOT use the <url|label> form), plain names for people, times like "3:50 PM CDT":
 1. Title "<HANDOFF_TYPE> Shift Handoff - <Month DD, YYYY> at <slot time> CDT" (prefix "[TEST] " if
    test_mode)
 2. Status Summary (Active ITSM / Non-ITSM Managed / Resolved-Awaiting Stand Down / NEW since
@@ -119,5 +119,6 @@ REFERENCE IDs (for READ + building links)
 - User: U09KFGH8CBG
 
 VERIFY BEFORE POSTING: mode read; correct channel chosen; tracker read; awaiting-stand-down matches
-Step B; Statuspage section present; channel refs use labeled archive URLs (not <#...> entities); no
-no-workflow incidents listed; no private channels; no emojis; webhook returned {"ok":true}.
+Step B; Statuspage section present; channel refs are name + bare archive URL (not <#...> entities,
+not <url|label>); no no-workflow incidents listed; no private channels; no emojis; webhook returned
+{"ok":true}.
