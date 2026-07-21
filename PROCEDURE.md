@@ -80,8 +80,15 @@ FIRST — if not a public_channel, EXCLUDE and never name it. ITSM-managed if th
 "Formalize Incident Response" message, OR a Request Assistance message with "the incident commander
 on call has been paged", OR a topic containing both "Inc Commander" and "Inc Comms". Non-ITSM if a
 Request Assistance message says "this channel created for coordinated response ... add Critical
-Incident Response to the Pagerduty". No workflow message => EXCLUDE (count only as Other Resolved;
-never list raw Burn Rate / Cloud Run / "Error Detected" alerts).
+Incident Response to the Pagerduty".
+SERVICE SAFETY NET (apply BEFORE excluding anything): if the incident's PagerDuty service is
+"Non-Incident Managed" (id P22VTJS) and it has a public inc_ channel, it MUST be surfaced regardless
+of workflow messages — this service is reserved for human-raised incidents (only a few per month, no
+monitoring noise). Sub-classify by channel workflow: Formalize/IC-paged -> Active ITSM;
+coordinated-response Request Assistance -> Non-ITSM Managed; NEITHER -> "Raised Without Standard
+Workflow" (surface for awareness, never drop).
+Only after that: an incident with NO workflow message AND NOT on P22VTJS => EXCLUDE (count only as
+Other Resolved; never list raw Burn Rate / Cloud Run / "Error Detected" alerts).
 
 STEP F — For each ITSM incident, get the latest in-window comms from #production-incidents (who,
 when, one line) using the Slack READ tools.
@@ -101,6 +108,9 @@ STEP H — Categorize + reconcile tracker (self-add):
 - Final categories:
   - Active ITSM: workflow + triggered/ack + public.
   - Non-ITSM Managed: Non-ITSM workflow + triggered/ack + public.
+  - Raised Without Standard Workflow (for awareness): on service P22VTJS + public inc_ channel + no
+    recognized workflow message + triggered/acknowledged. (If it resolved in-window, note it under
+    item 7 instead.)
   - Resolved - Awaiting Stand Down: ALL tracker entries with stand_down_completed = false after the
     reconciliation in Steps B and H.
   - Resolved ITSM: count (include any incident cleared/closed this run).
@@ -111,12 +121,17 @@ STEP I — Build the message in EXACTLY this order. Use *bold* headers, "•" bu
 do NOT use the <url|label> form), plain names for people, times like "3:50 PM CDT":
 1. Title "<HANDOFF_TYPE> Shift Handoff - <Month DD, YYYY> at <slot time> CDT" (prefix "[TEST] " if
    test_mode)
-2. Status Summary (Active ITSM / Non-ITSM Managed / Resolved-Awaiting Stand Down / NEW since
-   previous / Resolved ITSM / Other Resolved)
+2. Status Summary (Active ITSM / Non-ITSM Managed / Raised Without Standard Workflow / Resolved-
+   Awaiting Stand Down / NEW since previous / Resolved ITSM / Other Resolved)
 3. Incidents from Previous Handoff - Status Updates (mandatory if previous had any)
 4. Active ITSM-Managed Incidents (Service, Severity, Duration, Status, Assigned, What Happened,
    Current Status, Last Comms) — only if > 0
 5. Non-ITSM Managed Incident Channels (standard "For awareness…" header) — only if > 0
+5b. Raised Without Standard Workflow — For Awareness (only if > 0). Header: "The following were
+   raised in PagerDuty on the Non-Incident Managed service without the standard incident workflow, so
+   an incident commander may not have been engaged — please verify escalation." For each: channel
+   name + bare URL, Service, Status, Assigned, brief What Happened, and
+   "Action: confirm the correct escalation policy / workflow was used."
 6. Resolved - Awaiting Stand Down (Service, Severity, Duration, Inc Commander, Inc Comms, What
    Happened, Resolved, Days Since Resolution, "Action Needed: Run Stand Down Workflow - PRIORITY")
    — the set from STEP H; if empty, write "None." with nothing trailing.
@@ -164,9 +179,12 @@ REFERENCE IDs (for READ + building links)
   #production-incidents (search) | #kylie-handoff-test C0BDGG0CTTR
 - Bots: Statuspage BF4G0ND7A | Stand Down B0A6704H7QD | PagerDuty UFFKGG116 |
   Request Assistance B0AGYAKK4GZ | Formalize Incident Response B086K28S7DW
+- Services: Non-Incident Managed P22VTJS (human-raised; always surface, never treat as noise)
 - User: U09KFGH8CBG
 
 VERIFY BEFORE POSTING: mode read; tracker reconciled (self-clear + self-add); correct channel
-chosen; awaiting set = tracker entries still false; Statuspage section present; channel refs are
-name + bare archive URL (not <#...> entities, not <url|label>); no no-workflow incidents listed; no
-private channels; no emojis; webhook returned {"ok":true}; tracker committed if CHANGED.
+chosen; awaiting set = tracker entries still false; every P22VTJS incident with a public inc_ channel
+is surfaced (Active ITSM / Non-ITSM Managed / or Raised Without Standard Workflow — never dropped);
+Statuspage section present; channel refs are name + bare archive URL (not <#...> entities, not
+<url|label>); only genuine no-channel/no-workflow noise excluded; no private channels; no emojis;
+webhook returned {"ok":true}; tracker committed if CHANGED.
