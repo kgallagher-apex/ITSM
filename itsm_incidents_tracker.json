@@ -14,7 +14,22 @@
       "service": "FTE",
       "summary": "NY3 FTE EM.9 network card failure - 25-27k queued orders failed to release",
       "last_checked": "2026-07-14T17:43:00Z"
+    },
+    {
+      "incident_number": "147470",
+      "channel_id": "C0BKQRYFARH",
+      "channel_name": "inc_asc-147470-cais-regulatory-reporting-2026-07-26",
+      "pagerduty_id": "Q0R5EIIPGR1JIE",
+      "created_date": "2026-07-26T21:55:26Z",
+      "resolved_date": "2026-07-26T22:24:11Z",
+      "stand_down_completed": false,
+      "stand_down_date": null,
+      "inc_commander": "Zach Williams",
+      "inc_comms": null,
+      "service": "Regulatory Reporting",
+      "summary": "Ascend CAIS regulatory reporting files (3 EOD Friday files) not sent to nTier; time-sensitive to Monday 8:00 AM ET regulatory submission. Airflow job rerun, files resent and receipt confirmed; formal stand down pending.",
+      "last_checked": "2026-07-27T13:30:00Z"
     }
   ],
-  "last_updated": "2026-07-14T17:43:00Z"
+  "last_updated": "2026-07-27T13:30:00Z"
 }

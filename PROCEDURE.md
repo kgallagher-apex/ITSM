@@ -68,6 +68,20 @@ STEP B — Read and reconcile the tracker (self-clear):
   PagerDuty resolved ITSM incidents + the B0A6704H7QD check; note in the run log that the tracker
   could not be read.)
 
+STEP B2 — Awaiting-stand-down SAFETY SWEEP (do NOT rely only on the tracker or the current window;
+this is what catches incidents that resolved in a previous shift's window or that a missed/late run
+never captured — e.g. an incident resolved yesterday evening but not formally stood down):
+- Search Slack for public channels whose name starts with "inc_" created/active in the last ~5 days.
+  Naming VARIES — inc_<number>-..., inc_asc-<number>-..., etc. — so match on the incident number
+  appearing anywhere in the name, not a fixed prefix.
+- For each such channel, identify its PagerDuty incident (number in the channel name / the PD card).
+  If that incident is RESOLVED and the channel has NO "formally stood down" message from bot
+  B0A6704H7QD, it is AWAITING stand down.
+- Ensure every such incident is present in the tracker (ADD it if missing, stand_down_completed =
+  false, filling channel_id/name, pagerduty_id, dates, IC/comms, service, summary; set CHANGED =
+  true). It then appears in "Resolved - Awaiting Stand Down" regardless of which window it resolved in
+  or whether an earlier run caught it.
+
 STEP C — Statuspage: with the Slack READ tools, read #itsm-active-incidents (C082J3NQU90) across the
 window; keep only content updates from Statuspage bot BF4G0ND7A (ignore "open for over X hours"
 reminders); capture time, incident name, one-line summary.
@@ -75,8 +89,11 @@ reminders); capture time, incident name, one-line summary.
 STEP D — PagerDuty: list active (triggered/acknowledged, since ~7 days back) and resolved (since
 coverage_start until coverage_end).
 
-STEP E — Classify each incident: find its Slack channel (inc_<number>-<desc>-<date>); check privacy
-FIRST — if not a public_channel, EXCLUDE and never name it. ITSM-managed if the public channel has a
+STEP E — Classify each incident: find its Slack channel by searching for the incident NUMBER among
+public channels whose name starts with "inc_" (naming varies: inc_<number>-..., inc_asc-<number>-...,
+and the channel may have been renamed after creation — match on the number appearing anywhere in the
+name, not a fixed "inc_<number>" prefix). Check privacy FIRST — if not a public_channel, EXCLUDE and
+never name it. ITSM-managed if the public channel has a
 "Formalize Incident Response" message, OR a Request Assistance message with "the incident commander
 on call has been paged", OR a topic containing both "Inc Commander" and "Inc Comms". Non-ITSM if a
 Request Assistance message says "this channel created for coordinated response ... add Critical
