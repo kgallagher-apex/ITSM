@@ -133,29 +133,62 @@ STEP H — Categorize + reconcile tracker (self-add):
   - Resolved ITSM: count (include any incident cleared/closed this run).
   - Other Resolved: count (auto-resolved / no workflow).
 
-STEP I — Build the message in EXACTLY this order. Use *bold* headers, "•" bullets, channel refs as
-"<channel-name> <bare archive URL>" (name then https://apexclearing.slack.com/archives/CHANNEL_ID;
-do NOT use the <url|label> form), plain names for people, times like "3:50 PM CDT":
-1. Title "<HANDOFF_TYPE> Shift Handoff - <Month DD, YYYY> at <slot time> CDT" (prefix "[TEST] " if
-   test_mode)
-2. Status Summary (Active ITSM / Non-ITSM Managed / Raised Without Standard Workflow / Resolved-
-   Awaiting Stand Down / NEW since previous / Resolved ITSM / Other Resolved)
-3. Incidents from Previous Handoff - Status Updates (mandatory if previous had any)
-4. Active ITSM-Managed Incidents (Service, Severity, Duration, Status, Assigned, What Happened,
-   Current Status, Last Comms) — only if > 0
-5. Non-ITSM Managed Incident Channels (standard "For awareness…" header) — only if > 0
-5b. Raised Without Standard Workflow — For Awareness (only if > 0). Header: "The following were
-   raised in PagerDuty on the Non-Incident Managed service without the standard incident workflow, so
-   an incident commander may not have been engaged — please verify escalation." For each: channel
-   name + bare URL, Service, Status, Assigned, brief What Happened, and
-   "Action: confirm the correct escalation policy / workflow was used."
-6. Resolved - Awaiting Stand Down (Service, Severity, Duration, Inc Commander, Inc Comms, What
-   Happened, Resolved, Days Since Resolution, "Action Needed: Run Stand Down Workflow - PRIORITY")
-   — the set from STEP H; if empty, write "None." with nothing trailing.
-7. Resolved ITSM Incidents Since <Previous> Shift (count; list only if <= 5; include any cleared
-   this run, e.g. "#146552 ... stood down <time>")
-8. External Status Page Updates (mandatory; if none, say so with the range)
-9. Status Key (the 5 standard definitions)
+STEP I — Build the message in the CHECKLIST format below. Webhook-plain-text rules: *bold* for
+headers/labels, "☐" for open items, channel refs as "<channel-name> <bare archive URL>" (name then
+https://apexclearing.slack.com/archives/CHANNEL_ID; do NOT use <#...|...> or <url|label> — both show
+literally via the webhook), plain names for people, times like "3:50 PM CDT". Prefix the title with
+"[TEST] " only if test_mode.
+
+TOP:
+  *[TEST] Incident Manager Handoff - Status & Open Items*
+  <HANDOFF_TYPE> - <Month DD, YYYY> - <slot time> CDT (coverage <start> - <end>)
+  Summary: <#active> active - <#awaiting> awaiting stand down - <#stood down this window> stood down -
+  <#new managed> new managed - <#other resolved> other resolved
+
+PER-INCIDENT BLOCK — one per incident that must be surfaced (Active ITSM, Non-ITSM Managed, Raised
+Without Standard Workflow, anything Awaiting Stand Down, and anything stood down this window). Order:
+attention-needed/active first, then awaiting stand down, then closed-this-window last.
+
+  *<n>. #<number> - <channel-name> <bare archive URL>*
+  Status: <state>
+  Severity: <sev> - Service: <service>
+  Assigned: <name> (<role>)
+  Latest comms: <who / when / one-line of the most recent update>. If NO public comms have been posted
+    to #production-incidents, say exactly: "INTERNAL ONLY - no public comms update has been posted".
+  Open Items
+  ☐ <action>
+  ☐ <action>
+
+OPEN ITEMS by category (for anything NOT resolved, the FIRST item is always the comms item):
+- Comms item (NOT-resolved incidents only): if no public comms posted yet ->
+  "☐ POST AN INTERNAL COMMS UPDATE (none posted yet - incident is not resolved)"; otherwise ->
+  "☐ Post the next internal comms update in #production-incidents".
+- Active ITSM: continue investigation / confirm current root-cause status; confirm recovery plan,
+  owner, and timeline; confirm a mitigation is in place to prevent further impact; (if client impact)
+  confirm client comms are current; resolve in PagerDuty and run Stand Down once recovered.
+- Raised Without Standard Workflow (P22VTJS, no workflow): confirm the correct escalation policy /
+  incident workflow was used; engage an incident manager if impact warrants; confirm remediation and
+  owner; resolve in PagerDuty once verified.
+- Non-ITSM Managed: monitor the channel and engage an IC if it becomes incident-managed; confirm
+  current status and owner.
+- Resolved - Awaiting Stand Down (no comms item - it is resolved): verify the PagerDuty incident is
+  resolved; run the Stand Down Workflow; confirm fully closed after stand down; (if applicable)
+  confirm any downstream/client deadline was met.
+- Closed this window (stood down): show the Status line and "Open Items: ☐ None - fully closed this
+  window."
+
+AFTER the incident blocks, add:
+  *Resolved - Awaiting Stand Down:* if none outstanding, write "None outstanding" and a short
+  parenthetical of what cleared (e.g. "#147390 stood down 8:20 AM; #147470 stood down July 28").
+  *External Status Page Updates:* MANDATORY. Each in-window Statuspage (BF4G0ND7A) content update as
+  "<time> - <incident name> - <one-line>"; if none, write "None posted during coverage (<range>)".
+  *Other Resolved:* "<count> auto-resolved (monitoring only; no ITSM workflow)".
+  *Status Key:* Active = open incident needing attention - Awaiting Stand Down = PD resolved, Stand
+  Down not run - Stood down = fully closed - Other Resolved = auto-resolved monitoring.
+
+Previous-handoff incidents: reflect their CURRENT status inline in the blocks above (e.g. one that
+moved from Awaiting to stood down appears as closed-this-window). No separate previous-handoff section
+is needed in this format.
 
 STEP POST — Post via our Workflow Builder webhook (the Slack connector has no send tool). The
 webhook accepts a JSON body with "channel" and "text" keys and posts the text to that channel.
@@ -202,6 +235,8 @@ REFERENCE IDs (for READ + building links)
 VERIFY BEFORE POSTING: mode read; tracker reconciled (self-clear + self-add); correct channel
 chosen; awaiting set = tracker entries still false; every P22VTJS incident with a public inc_ channel
 is surfaced (Active ITSM / Non-ITSM Managed / or Raised Without Standard Workflow — never dropped);
-Statuspage section present; channel refs are name + bare archive URL (not <#...> entities, not
-<url|label>); only genuine no-channel/no-workflow noise excluded; no private channels; no emojis;
-webhook returned {"ok":true}; tracker committed if CHANGED.
+each surfaced incident has a "Latest comms" line, and every NOT-resolved incident's first Open Item is
+the internal-comms-update item; Statuspage section present; channel refs are name + bare archive URL
+(not <#...> entities, not <url|label>); "☐" used for open items; only genuine no-channel/no-workflow
+noise excluded; no private channels; no emojis; webhook returned {"ok":true}; tracker committed if
+CHANGED.
