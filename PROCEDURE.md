@@ -159,10 +159,16 @@ attention-needed/active first, then awaiting stand down, then closed-this-window
   ☐ <action>
   ☐ <action>
 
-OPEN ITEMS by category (for anything NOT resolved, the FIRST item is always the comms item):
-- Comms item (NOT-resolved incidents only): if no public comms posted yet ->
-  "☐ POST AN INTERNAL COMMS UPDATE (none posted yet - incident is not resolved)"; otherwise ->
-  "☐ Post the next internal comms update in #production-incidents".
+OPEN ITEMS by category (for anything NOT resolved, the comms item — when it applies — comes FIRST):
+- Comms item (NOT-resolved incidents), by severity:
+  - NON-CRITICAL incidents: include a comms item ONLY IF an initial comms was ALREADY posted in
+    #production-incidents for this incident -> "☐ Post the next internal comms update in
+    #production-incidents". If NO initial comms was ever posted for a non-critical incident, do NOT
+    add any comms item at all (non-critical incidents do not require initiating public comms — only
+    keeping an already-started thread current).
+  - CRITICAL / higher-severity incidents: if no public comms posted yet ->
+    "☐ POST AN INTERNAL COMMS UPDATE (none posted yet - incident is not resolved)"; otherwise ->
+    "☐ Post the next internal comms update in #production-incidents".
 - Active ITSM: continue investigation / confirm current root-cause status; confirm recovery plan,
   owner, and timeline; confirm a mitigation is in place to prevent further impact; (if client impact)
   confirm client comms are current; resolve in PagerDuty and run Stand Down once recovered.
@@ -235,8 +241,9 @@ REFERENCE IDs (for READ + building links)
 VERIFY BEFORE POSTING: mode read; tracker reconciled (self-clear + self-add); correct channel
 chosen; awaiting set = tracker entries still false; every P22VTJS incident with a public inc_ channel
 is surfaced (Active ITSM / Non-ITSM Managed / or Raised Without Standard Workflow — never dropped);
-each surfaced incident has a "Latest comms" line, and every NOT-resolved incident's first Open Item is
-the internal-comms-update item; Statuspage section present; channel refs are name + bare archive URL
+each surfaced incident has a "Latest comms" line, and the comms Open Item follows the severity rule
+(critical: always call it out when unposted; non-critical: only when a comms thread was already
+started); Statuspage section present; channel refs are name + bare archive URL
 (not <#...> entities, not <url|label>); "☐" used for open items; only genuine no-channel/no-workflow
 noise excluded; no private channels; no emojis; webhook returned {"ok":true}; tracker committed if
 CHANGED.
